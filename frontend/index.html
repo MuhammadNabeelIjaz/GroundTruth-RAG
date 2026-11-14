@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23E9F5EE%22/><path d=%22M10 8h8l6 6v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z%22 fill=%22none%22 stroke=%22%230A4D3A%22 stroke-width=%222%22/><path d=%22M18 8v6h6%22 fill=%22none%22 stroke=%22%231FBF75%22 stroke-width=%222%22/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111315" />
+    <script>
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const queryTheme = params.get('theme');
+        const saved = queryTheme || localStorage.getItem('rag_qa_theme');
+        if (saved === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        }
+      } catch (e) {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <title>GroundTruth: AI Document Assistant with Source-Backed Answers (RAG)</title>
+  </head>
+  <body class="dark:bg-[#141517] bg-[#FAF9F5] dark:text-[#F3F4F6] text-[#2C2D30] antialiased selection:bg-[#E5E4DE] dark:selection:bg-[#33353A] selection:text-current transition-colors duration-150">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

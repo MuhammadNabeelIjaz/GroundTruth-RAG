@@ -1,0 +1,359 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    /* Premium Claude-inspired Dark Palette */
+    --bg-main: #141517;
+    --bg-sidebar: #191A1D;
+    --surface: #1E2024;
+    --surface-secondary: #25272C;
+    --border-soft: #2D3036;
+    --text-primary: #F3F4F6;
+    --text-secondary: #A1A3A8;
+    --text-muted: #71737A;
+    --accent: #10B981;
+    --accent-strong: #10B981;
+    --accent-soft: rgba(16, 185, 129, 0.12);
+    --accent-hover: #059669;
+
+    /* Semantic & Component Tokens */
+    --bg-surface: var(--surface);
+    --bg-composer: var(--surface);
+    --bg-hover: #25272C;
+
+    --sidebar-hover: #25272C;
+    --sidebar-active-bg: #282A30;
+    --sidebar-active-fg: #F3F4F6;
+    --icon-default: #A1A3A8;
+    --icon-hover: #F3F4F6;
+    --icon-active: #10B981;
+    --logo-tint-bg: rgba(16, 185, 129, 0.12);
+    --logo-fg: #10B981;
+
+    --brand-deep: #F3F4F6;
+    --brand-deep-hover: #FFFFFF;
+    --accent-text: #10B981;
+    --accent-tint: rgba(16, 185, 129, 0.12);
+    --accent-tint-strong: rgba(16, 185, 129, 0.20);
+    --mint-card: #1E2024;
+
+    --text-strong: #F3F4F6;
+    --text-body: #A1A3A8;
+    --on-brand: #FFFFFF;
+
+    --hairline: #2D3036;
+    --ring: rgba(200, 200, 200, 0.2);
+    --ring-glow: rgba(0, 0, 0, 0.15);
+
+    --color-surface-page: var(--bg-main);
+    --color-surface-sidebar: var(--bg-sidebar);
+    --color-surface-subtle: #25272C;
+    --color-surface-muted: #25272C;
+    --color-surface-hover: #25272C;
+    --color-hairline: #2D3036;
+    --color-text-primary: var(--text-primary);
+    --color-text-body: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+  }
+
+  :root.light,
+  html.light,
+  body.light {
+    color-scheme: light;
+
+    /* Premium Claude-inspired Warm Light Palette */
+    --bg-main: #FAF9F5;
+    --bg-sidebar: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface-secondary: #F0EFEA;
+    --border-soft: #EBEAE5;
+    --text-primary: #2C2D30;
+    --text-secondary: #5E6066;
+    --text-muted: #8E9096;
+    --accent: #10B981;
+    --accent-strong: #059669;
+    --accent-soft: rgba(16, 185, 129, 0.08);
+    --accent-hover: #047857;
+
+    /* Semantic & Component Tokens */
+    --bg-surface: #FFFFFF;
+    --bg-composer: #FFFFFF;
+    --bg-hover: #F0EFEA;
+
+    --sidebar-hover: #ECEBE5;
+    --sidebar-active-bg: #ECEBE5;
+    --sidebar-active-fg: #1F2022;
+    --icon-default: #6B7280;
+    --icon-hover: #1F2022;
+    --icon-active: #059669;
+    --logo-tint-bg: rgba(217, 119, 87, 0.10);
+    --logo-fg: #D97757;
+
+    --brand-deep: #1F2022;
+    --brand-deep-hover: #000000;
+    --accent-text: #059669;
+    --accent-tint: rgba(16, 185, 129, 0.08);
+    --accent-tint-strong: rgba(16, 185, 129, 0.16);
+    --mint-card: #FFFFFF;
+
+    --text-strong: #1F2022;
+    --text-body: #5E6066;
+    --on-brand: #FFFFFF;
+
+    --hairline: #EBEAE5;
+    --ring: rgba(0, 0, 0, 0.1);
+    --ring-glow: rgba(0, 0, 0, 0.04);
+
+    --color-surface-page: #FAF9F5;
+    --color-surface-sidebar: #F7F6F2;
+    --color-surface-subtle: #F0EFEA;
+    --color-surface-muted: #F0EFEA;
+    --color-surface-hover: #ECEBE5;
+    --color-hairline: #EBEAE5;
+    --color-text-primary: #2C2D30;
+    --color-text-body: #5E6066;
+    --color-text-muted: #8E9096;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: rgba(16, 185, 129, 0.25);
+    color: #FFFFFF;
+  }
+
+  /* Accessibility focus ring */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Custom sleek dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363D;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #484F58;
+}
+
+/* Light mode scrollbar */
+html.light ::-webkit-scrollbar-thumb,
+body.light ::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover,
+body.light ::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Micro animations (restrained 150-200ms) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.18s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes focusPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-modal-enter {
+  animation: modalEnter 0.18s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+.animate-focus-pulse {
+  animation: focusPulse 0.25s ease-out;
+}
+
+.scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}
+
+/* Standardized 8px radius Settings modal box */
+@media (max-width: 639px) {
+  .settings-modal-box {
+    width: 100%;
+    height: 85dvh;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+@media (min-width: 640px) and (max-width: 899px) {
+  .settings-modal-box {
+    width: min(92vw, 640px);
+    height: min(560px, calc(100dvh - 64px));
+    border-radius: 8px;
+  }
+}
+@media (min-width: 900px) {
+  .settings-modal-box {
+    width: 680px;
+    height: min(560px, calc(100dvh - 64px));
+    border-radius: 8px;
+  }
+}
+@media (max-height: 599px) {
+  .settings-modal-box {
+    height: calc(100dvh - 24px) !important;
+  }
+}
+
+.dot-bounce-1 {
+  animation: dotBounce 1.2s infinite ease-in-out;
+}
+.dot-bounce-2 {
+  animation: dotBounce 1.2s infinite ease-in-out 0.2s;
+}
+.dot-bounce-3 {
+  animation: dotBounce 1.2s infinite ease-in-out 0.4s;
+}
+
+/* YouTube-style Shimmer Skeletons */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.08) 65%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+.light .animate-shimmer::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.03) 35%,
+    rgba(0, 0, 0, 0.08) 50%,
+    rgba(0, 0, 0, 0.03) 65%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

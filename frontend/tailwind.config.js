@@ -1,0 +1,108 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: 'class',
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        bg: {
+          main: '#111315',
+          sidebar: '#181B1F',
+        },
+        surface: {
+          DEFAULT: '#1C2025',
+          page: '#111315',
+          sidebar: '#181B1F',
+          primary: '#1C2025',
+          secondary: '#22272D',
+          hover: '#22272D',
+          subtle: '#22272D',
+          soft: '#1C2025',
+          muted: '#22272D',
+          composer: '#1C2025',
+          'mint-card': '#22272D',
+        },
+        border: {
+          DEFAULT: '#30363D',
+          soft: '#30363D',
+          subtle: '#282E33',
+        },
+        text: {
+          primary: '#F3F4F6',
+          secondary: '#A1A1AA',
+          muted: '#71717A',
+          body: '#A1A1AA',
+          strong: '#F3F4F6',
+          ink: '#F3F4F6',
+        },
+        accent: {
+          DEFAULT: '#10B981',
+          strong: '#10B981',
+          hover: '#059669',
+          soft: 'rgba(16, 185, 129, 0.12)',
+          text: '#10B981',
+          tint: 'rgba(16, 185, 129, 0.12)',
+          'tint-strong': 'rgba(16, 185, 129, 0.20)',
+        },
+        brand: {
+          DEFAULT: '#10B981',
+          hover: '#059669',
+          deep: '#F3F4F6',
+        },
+        hairline: {
+          DEFAULT: '#30363D',
+          soft: '#282E33',
+          strong: '#30363D',
+        },
+        semantic: {
+          error: '#EF4444',
+          warning: '#F59E0B',
+          info: '#71717A',
+          success: '#10B981',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        serif: ['"Newsreader"', '"Playfair Display"', 'Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+        mono: ['"DM Mono"', 'monospace'],
+      },
+      borderRadius: {
+        sm: '4px',
+        md: '6px',
+        DEFAULT: '8px',
+        lg: '10px',
+        xl: '14px',
+        '2xl': '18px',
+        '3xl': '24px',
+        btn: '10px',
+        input: '12px',
+        card: '14px',
+        menu: '10px',
+        chip: '9999px',
+      },
+      boxShadow: {
+        sidebar: '1px 0 0 #30363D',
+        header: '0 1px 0 #30363D',
+        'active-row': 'none',
+        floating: '0 8px 30px rgba(0, 0, 0, 0.08)',
+        composer: '0 4px 20px rgba(0, 0, 0, 0.35)',
+        'composer-focus': '0 0 0 1px #10B981, 0 4px 24px rgba(16, 185, 129, 0.12)',
+        'composer-typing': '0 0 0 1px #10B981, 0 4px 24px rgba(16, 185, 129, 0.15)',
+        'btn-hover': '0 2px 10px rgba(16, 185, 129, 0.25)',
+      },
+      maxWidth: {
+        chat: '760px',
+        library: '1100px',
+        settings: '680px',
+      },
+      transitionTimingFunction: {
+        premium: 'cubic-bezier(0.2, 0, 0, 1)',
+        reveal: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+    },
+  },
+  plugins: [],
+};

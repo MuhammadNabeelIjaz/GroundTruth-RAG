@@ -1,0 +1,37 @@
+# Only what the current stage needs; more dependencies are added stage by stage.
+fastapi>=0.115,<1.0
+uvicorn>=0.30
+pydantic-settings>=2.2
+httpx>=0.27      # required by FastAPI's TestClient
+pytest>=8.0
+# Stage 1 (PDF ingestion). Lower bounds are the versions actually tested in the
+# sandbox: pymupdf 1.28.2, python-multipart 0.0.33.
+# pymupdf is capped below 2.0: 2.x installs onnxruntime/numpy/networkx, which we do not need.
+pymupdf>=1.28,<2.0
+python-multipart>=0.0.33
+# Stage 3 (embeddings + vector store). Lower bounds are the versions actually
+# resolved/installed and tested (Stage 3A probes + this stage's own test runs):
+# chromadb 1.5.9, sentence-transformers 6.3.0 (needs Python >=3.10, torch>=2.2,
+# transformers>=5,<6). chromadb is always used as an embedded PersistentClient;
+# this project never runs `chroma run` or uses HttpClient (D-034,
+# CVE-2026-45829 applies to Chroma's own HTTP server, which this project never
+# starts). sentence_transformers/torch are imported lazily, inside
+# backend/retrieval/st_embedder.py, only when a SentenceTransformerEmbedder is
+# actually used -- the test suite uses FakeEmbedder instead and never imports
+# them, but both packages are listed here because the real embedder (and the
+# app running for real) need them installed.
+# NOTE for the install: on Linux, PyPI's torch wheel pulls in CUDA/NVIDIA
+# libraries even on a CPU-only machine (~5.9 GB total; D-035). The much
+# smaller CPU-only wheel from https://download.pytorch.org/whl/cpu is
+# recommended instead, e.g.:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+# This could not be verified in this sandbox (that host is unreachable here).
+chromadb>=1.5.9,<2.0
+onnxruntime>=1.18.0,<2.0
+tokenizers>=0.19.0,<1.0
+# Optional: sentence-transformers is only needed if running full PyTorch GPU inference.
+# By default, the application runs local CPU inference using ChromaDB's ONNX runtime MiniLM adapter.
+# sentence-transformers>=6.3.0,<7.0
+# Legacy / Archived Streamlit UI (optional; moved to archive/legacy-streamlit-frontend)
+# streamlit>=1.35,<1.42
