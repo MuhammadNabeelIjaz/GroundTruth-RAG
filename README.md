@@ -17,7 +17,50 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 2. Current Development Status
+## 2. UI Preview & Screenshots
+
+Experience the Claude-inspired user experience and source-backed answers:
+
+### 💬 Grounded Q&A with Physical Page Citations
+Ask complex questions about your documents. Verified inline badges (`[4]`) link directly to physical page excerpts and similarity confidence scores.
+
+![Grounded Q&A with Verified Citations](docs/screenshots/01_grounded_qa_chat_and_citations.png)
+
+<br/>
+
+### 🌟 Conversational Welcome Canvas & Prompt Discovery
+Minimalist welcome screen with contextual question recommendations derived from your uploaded reference documents.
+
+![Welcome Screen & Suggested Questions](docs/screenshots/02_welcome_canvas_and_prompt_suggestions.png)
+
+<br/>
+
+### 📚 Knowledge Base Management & Batch Ingestion
+Full-featured document library featuring drag-and-drop batch PDF ingestion, real-time status indicators, and multi-document filtering.
+
+![Document Library & Ingestion Dropzone](docs/screenshots/03_document_library_and_ingestion.png)
+
+<br/>
+
+### 🎯 In-Chat Granular Document Scope Selector
+Filter retrieval scope directly from the composer pill without leaving the chat conversation.
+
+<p align="center">
+  <img src="docs/screenshots/04_in_chat_document_scope_selector.png" alt="In-Chat Document Scope Popover" width="600" />
+</p>
+
+<br/>
+
+### 🔍 Interactive Verbatim Citation Verification
+Inspect the exact supporting excerpt retrieved from the physical PDF page with cosine similarity scores and one-click copy.
+
+<p align="center">
+  <img src="docs/screenshots/05_verified_source_citation_and_excerpt.png" alt="Citation Drawer Snippet Excerpt" width="700" />
+</p>
+
+---
+
+## 3. Current Development Status
 
 > [!IMPORTANT]
 > **DEVELOPMENT IN PROGRESS (PROTOTYPE / DEMONSTRATION PHASE)**
@@ -25,7 +68,7 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 3. Features Implemented & Verified
+## 4. Features Implemented & Verified
 
 ### Ingestion & Vector Storage
 - **PDF Upload & Validation**: Uploads are validated against magic bytes (`%PDF-`), capped at 20 MB (configurable), and checked for corruption.
@@ -56,7 +99,7 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 4. Partially Implemented & Transitional Features
+## 5. Partially Implemented & Transitional Features
 
 - **Standard Response Mode**: Responses are currently generated and returned synchronously as complete payloads. Progressive token-by-token streaming via Server-Sent Events (SSE) is not supported.
 - **Document Suggestions Cache**: Suggestion questions are cached in-memory and re-generated on server restart.
@@ -64,7 +107,7 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 5. Technology Stack
+## 6. Technology Stack
 
 ### Backend
 - **Language**: Python 3.11+
@@ -88,7 +131,7 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 6. Folder and File Structure
+## 7. Folder and File Structure
 
 ```
 .
@@ -159,7 +202,7 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 7. Prerequisites
+## 8. Prerequisites
 
 | Tool | Version Requirement | Notes |
 |---|---|---|
@@ -170,7 +213,7 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ---
 
-## 8. Installation & Setup
+## 9. Installation & Setup
 
 ### 0. Clone the Repository
 
@@ -219,7 +262,7 @@ cp .env.example .env
 
 ---
 
-## 9. Environment Variables
+## 10. Environment Variables
 
 ### Backend Configuration (`backend/.env`)
 
@@ -253,7 +296,7 @@ cp .env.example .env
 
 ---
 
-## 10. How to Run the Project
+## 11. How to Run the Project
 
 ### Windows One-Click Launchers
 From the project root directory:
@@ -278,7 +321,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 ---
 
-## 11. End-to-End Application Workflow
+## 12. End-to-End Application Workflow
 
 ```
 [ 1. User Uploads PDF ]
@@ -316,7 +359,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 ---
 
-## 12. Verified API Endpoints
+## 13. Verified API Endpoints
 
 All endpoints below have been verified via automated integration and live HTTP tests:
 
@@ -345,7 +388,7 @@ All endpoints below have been verified via automated integration and live HTTP t
 
 ---
 
-## 13. Known Limitations
+## 14. Known Limitations
 
 - **Complex Table Extraction**: PyMuPDF extracts text streams line-by-line (`page.get_text("text")`). Multi-column tables and comparative matrices are flattened into linear text, which can degrade retrieval precision for tabular lookups.
 - **Single-Process Storage Locks**: SQLite conversation storage and local ChromaDB persistent directories are designed for single-process operation. Running multiple Uvicorn worker processes (`--workers > 1`) will cause database lock contention.
@@ -355,7 +398,7 @@ All endpoints below have been verified via automated integration and live HTTP t
 
 ---
 
-## 14. Pending Development Tasks
+## 15. Pending Development Tasks
 
 The following capabilities are planned for upcoming development iterations:
 1. **Server-Sent Events (SSE) Streaming**: Implement token-by-token streaming response generation with trailing citation payloads.
@@ -367,7 +410,7 @@ The following capabilities are planned for upcoming development iterations:
 
 ---
 
-## 15. Testing & Verification Status
+## 16. Testing & Verification Status
 
 The project includes an extensive automated test suite enforcing isolation: tests generate synthetic PDFs in-memory and write temporary files strictly to pytest sandbox directories, leaving production data directories untouched.
 
