@@ -19,44 +19,41 @@ The application pairs a **FastAPI (Python)** backend with a **React 19 + TypeScr
 
 ## 2. UI Preview & Screenshots
 
-Experience the Claude-inspired user experience and source-backed answers:
+Experience the Claude-inspired user experience with verified, source-backed answers:
 
-### 💬 Grounded Q&A with Physical Page Citations
-Ask complex questions about your documents. Verified inline badges (`[4]`) link directly to physical page excerpts and similarity confidence scores.
-
-![Grounded Q&A with Verified Citations](docs/screenshots/01_grounded_qa_chat_and_citations.png)
-
-<br/>
-
-### 🌟 Conversational Welcome Canvas & Prompt Discovery
-Minimalist welcome screen with contextual question recommendations derived from your uploaded reference documents.
-
-![Welcome Screen & Suggested Questions](docs/screenshots/02_welcome_canvas_and_prompt_suggestions.png)
-
-<br/>
-
-### 📚 Knowledge Base Management & Batch Ingestion
-Full-featured document library featuring drag-and-drop batch PDF ingestion, real-time status indicators, and multi-document filtering.
-
-![Document Library & Ingestion Dropzone](docs/screenshots/03_document_library_and_ingestion.png)
-
-<br/>
-
-### 🎯 In-Chat Granular Document Scope Selector
-Filter retrieval scope directly from the composer pill without leaving the chat conversation.
-
-<p align="center">
-  <img src="docs/screenshots/04_in_chat_document_scope_selector.png" alt="In-Chat Document Scope Popover" width="600" />
-</p>
-
-<br/>
-
-### 🔍 Interactive Verbatim Citation Verification
-Inspect the exact supporting excerpt retrieved from the physical PDF page with cosine similarity scores and one-click copy.
-
-<p align="center">
-  <img src="docs/screenshots/05_verified_source_citation_and_excerpt.png" alt="Citation Drawer Snippet Excerpt" width="700" />
-</p>
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <strong>💬 Grounded Q&A with Citations</strong><br/>
+      <sub>Verified inline badges link directly to physical page excerpts and similarity scores.</sub><br/><br/>
+      <img src="docs/screenshots/01_grounded_qa_chat_and_citations.png" alt="Grounded Q&A with Citations" />
+    </td>
+    <td width="50%" align="center" valign="top">
+      <strong>🌟 Conversational Welcome Canvas</strong><br/>
+      <sub>Contextual prompt recommendations derived from your uploaded reference documents.</sub><br/><br/>
+      <img src="docs/screenshots/02_welcome_canvas_and_prompt_suggestions.png" alt="Welcome Screen & Suggested Questions" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <strong>📚 Document Library & Ingestion</strong><br/>
+      <sub>Batch PDF ingestion, real-time status indicators, and multi-document filtering.</sub><br/><br/>
+      <img src="docs/screenshots/03_document_library_and_ingestion.png" alt="Document Library & Ingestion Dropzone" />
+    </td>
+    <td width="50%" align="center" valign="top">
+      <strong>🎯 In-Chat Document Scope Selector</strong><br/>
+      <sub>Filter retrieval scope directly from the composer pill without leaving the chat conversation.</sub><br/><br/>
+      <img src="docs/screenshots/04_in_chat_document_scope_selector.png" alt="In-Chat Document Scope Popover" />
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center" valign="top">
+      <strong>🔍 Interactive Verbatim Citation Verification</strong><br/>
+      <sub>Inspect the exact supporting excerpt retrieved from the physical PDF page with cosine similarity scores.</sub><br/><br/>
+      <img src="docs/screenshots/05_verified_source_citation_and_excerpt.png" alt="Citation Drawer Snippet Excerpt" width="75%" />
+    </td>
+  </tr>
+</table>
 
 ---
 
