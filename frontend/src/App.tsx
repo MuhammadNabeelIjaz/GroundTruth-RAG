@@ -5,6 +5,7 @@ import { UploadProvider } from './context/UploadContext';
 import { Sidebar, Header, ChatArea, DocumentLibrary } from './components';
 import { UploadTray } from './components/UploadTray';
 import { AlertCircle, X, CheckCircle, Info } from 'lucide-react';
+import { getApiBaseUrl } from './services/api';
 
 const AppContent: React.FC = () => {
   const { currentPage, isBackendConnected, toasts, removeToast, startNewDraft, setCurrentPage } = useChat();
@@ -124,7 +125,7 @@ const AppContent: React.FC = () => {
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
               <span>
-                Backend disconnected: Unable to reach FastAPI server at <code>http://127.0.0.1:8000</code>.
+                Backend disconnected: Unable to reach FastAPI server at <code className="bg-red-900/40 px-1 py-0.5 rounded font-mono">{getApiBaseUrl() || 'configured backend'}</code>.
               </span>
             </div>
             <button

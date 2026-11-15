@@ -620,7 +620,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         type="url"
                         value={apiUrlInput}
                         onChange={(e) => setApiUrlInput(e.target.value)}
-                        placeholder="https://your-service.onrender.com or http://127.0.0.1:8000"
+                        placeholder="https://groundtruth-rag-backend.onrender.com or custom backend URL"
                         className="w-full px-3 py-2 text-xs font-mono rounded-lg border dark:border-[#33363D] border-[#D1D5DB] dark:bg-[#18191C] bg-white dark:text-[#F3F4F6] text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
                       <div className="flex items-center gap-2 pt-1">

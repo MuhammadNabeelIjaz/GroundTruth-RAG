@@ -11,7 +11,12 @@ import type {
 } from '../types';
 
 export function getDefaultApiBaseUrl(): string {
-  return (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  const envUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  if (envUrl) return envUrl;
+  if (import.meta.env.PROD) {
+    return 'https://groundtruth-rag-backend.onrender.com';
+  }
+  return 'http://127.0.0.1:8000';
 }
 
 export function getApiBaseUrl(): string {
@@ -19,7 +24,18 @@ export function getApiBaseUrl(): string {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('rag_api_base_url');
       if (stored && stored.trim()) {
-        return stored.trim().replace(/\/$/, '');
+        const trimmed = stored.trim().replace(/\/$/, '');
+        // In production on non-localhost domains, ignore stale localhost entries from development
+        if (
+          import.meta.env.PROD &&
+          window.location.hostname !== 'localhost' &&
+          window.location.hostname !== '127.0.0.1' &&
+          (trimmed.includes('127.0.0.1') || trimmed.includes('localhost'))
+        ) {
+          localStorage.removeItem('rag_api_base_url');
+        } else {
+          return trimmed;
+        }
       }
     }
   } catch {
@@ -86,7 +102,7 @@ export function extractErrorMessage(error: unknown): string {
 
 export const api = {
   checkHealth: async (): Promise<HealthResponse> => {
-    const res = await apiClient.get<HealthResponse>('/health', { timeout: 4000 });
+    const res = await apiClient.get<HealthResponse>('/health', { timeout: 10000 });
     return res.data;
   },
 

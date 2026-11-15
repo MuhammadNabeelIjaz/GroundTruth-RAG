@@ -145,7 +145,7 @@ export const COPY = {
     aboutSubheading: 'System specifications, architecture, and keyboard shortcuts.',
     systemStatus: 'System Status',
     backendService: 'Backend Service',
-    backendConnected: 'Connected (Port 8000)',
+    backendConnected: 'Connected',
     backendOffline: 'Offline',
     activeLibrary: 'Active Library',
     activeStats: (docs: number, convs: number) => `${docs} document${docs === 1 ? '' : 's'} · ${convs} conversation${convs === 1 ? '' : 's'}`,
@@ -164,7 +164,7 @@ export const COPY = {
     uploadFailed: (name: string) => `Failed to process "${name}". Please check the file.`,
     duplicateReplaced: (name: string) => `"${name}" updated successfully`,
     chatCleared: 'All conversations have been cleared',
-    disconnected: 'Backend disconnected: Unable to reach FastAPI backend server at http://127.0.0.1:8000.',
+    disconnected: 'Backend disconnected: Unable to reach FastAPI backend server.',
   },
 } as const;
 
