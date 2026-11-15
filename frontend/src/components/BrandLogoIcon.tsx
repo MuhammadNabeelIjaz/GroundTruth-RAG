@@ -5,7 +5,7 @@ interface BrandLogoIconProps {
 }
 
 /**
- * RAG QA Assistant Bespoke Brand Icon
+ * GroundTruth RAG Bespoke Brand Icon
  * An elevated, multi-dimensional knowledge symbol for Grounded Document QA:
  * - Layered background document (representing grounded document library retrieval)
  * - Crisp foreground document with folded corner and semantic text lines

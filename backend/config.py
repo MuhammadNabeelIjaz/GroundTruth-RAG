@@ -41,7 +41,7 @@ class Settings(BaseSettings):
         extra="ignore",  # ignore variables this stage does not use yet
     )
 
-    app_name: str = "rag-qa-assistant"
+    app_name: str = "GroundTruth-RAG"
     app_version: str = "0.1.0"
 
     # CORS allowed origins (frontend web client origins only).

@@ -37,7 +37,7 @@ def test_defaults():
     # _env_file=None: ignore the developer's own .env file as well.
     s = Settings(_env_file=None)
 
-    assert s.app_name == "rag-qa-assistant"
+    assert s.app_name == "GroundTruth-RAG"
     assert s.log_level == "INFO"
     assert s.uploads_dir == DATA_DIR / "uploads"
     assert s.chroma_dir == DATA_DIR / "chroma"

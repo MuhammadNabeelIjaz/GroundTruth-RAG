@@ -1,11 +1,11 @@
 /**
- * Central copy catalog for RAG QA Assistant.
+ * Central copy catalog for GroundTruth RAG.
  * Professional, calm, plain language free of technical jargon.
  */
 
 export const COPY = {
   app: {
-    name: 'RAG QA Assistant',
+    name: 'GroundTruth RAG',
     version: '0.1.0',
     tagline: 'Grounded Document Intelligence',
   },

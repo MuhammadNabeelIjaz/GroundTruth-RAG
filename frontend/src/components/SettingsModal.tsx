@@ -562,7 +562,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   </div>
                   <div>
                     <span className="text-[14px] font-semibold dark:text-[#F3F4F6] text-[#2C2D30] block">
-                      RAG QA Assistant
+                      GroundTruth RAG
                     </span>
                     <span className="text-[12px] dark:text-[#8E9097] text-[#6B7280]">
                       Version 0.1.0 · Grounded Document Intelligence

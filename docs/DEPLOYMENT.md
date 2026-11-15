@@ -52,7 +52,7 @@ The application is completely decoupled from any specific hosting provider:
 7. Once deployed, note down your Render backend URL (e.g., `https://groundtruth-rag-backend.onrender.com`).
 8. Verify health by opening: `https://<your-backend-url>/health` in your browser. You should see:
    ```json
-   {"status":"ok","service":"rag-qa-assistant","version":"0.1.0"}
+   {"status":"ok","service":"GroundTruth-RAG","version":"0.1.0"}
    ```
 
 ---
