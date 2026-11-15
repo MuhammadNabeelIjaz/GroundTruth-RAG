@@ -101,9 +101,24 @@ export function extractErrorMessage(error: unknown): string {
 }
 
 export const api = {
-  checkHealth: async (): Promise<HealthResponse> => {
-    const res = await apiClient.get<HealthResponse>('/health', { timeout: 10000 });
+  checkHealth: async (timeoutMs = 30000): Promise<HealthResponse> => {
+    const res = await apiClient.get<HealthResponse>('/health', { timeout: timeoutMs });
     return res.data;
+  },
+
+  checkHealthWithRetry: async (retries = 3, delayMs = 2000): Promise<HealthResponse> => {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        return await api.checkHealth(attempt === 0 ? 30000 : 20000);
+      } catch (err) {
+        lastError = err;
+        if (attempt < retries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+      }
+    }
+    throw lastError;
   },
 
   listDocuments: async (): Promise<DocumentList> => {

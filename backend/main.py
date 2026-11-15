@@ -3,8 +3,11 @@
     uvicorn backend.main:app --reload
 """
 
+import gc
 import logging
+import re
 import shutil
+import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -31,7 +34,7 @@ _SEED_LOCK = threading.Lock()
 
 
 def _seed_sample_documents() -> None:
-    """Ensure all sample PDFs in sample_pdfs are indexed directly without copying to uploads."""
+    """Ensure sample PDFs in sample_pdfs are indexed directly without copying to uploads."""
     if not _SEED_LOCK.acquire(blocking=False):
         logger.info("Sample document seeding is already in progress; skipping duplicate run.")
         return
@@ -44,14 +47,21 @@ def _seed_sample_documents() -> None:
             Path(settings.chroma_dir), settings.chroma_collection_name
         )
 
-        for pdf in sorted(sample_dir.rglob("*.pdf"), key=lambda p: p.name.lower()):
-            if pdf.is_file() and counts.get(pdf.name, 0) == 0:
+        # Process smaller documents first to get the index responsive quickly
+        all_pdfs = [p for p in sample_dir.rglob("*.pdf") if p.is_file()]
+        all_pdfs.sort(key=lambda p: (p.stat().st_size, p.name.lower()))
+
+        for pdf in all_pdfs:
+            if counts.get(pdf.name, 0) == 0:
                 try:
                     pages = pdf_loader.extract_pages(pdf, pdf.name)
                     pipeline.ingest_pages(pdf.name, pages)
                     logger.info("Ingested sample document %s directly from %s", pdf.name, pdf.parent.name)
                 except Exception as e:
                     logger.warning("Could not auto-ingest %s: %s", pdf.name, e)
+                finally:
+                    gc.collect()
+                    time.sleep(0.5)  # Yield CPU to uvicorn between documents
     except Exception as exc:
         logger.warning("Sample document seeding failed: %s", exc)
     finally:
@@ -83,13 +93,31 @@ app = FastAPI(
 )
 
 
+def _is_allowed_origin(origin: str | None) -> bool:
+    if not origin:
+        return False
+    if "*" in settings.cors_origins or origin in settings.cors_origins:
+        return True
+    if settings.cors_origin_regex and re.match(settings.cors_origin_regex, origin):
+        return True
+    return False
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Ensure unhandled 500 errors return clean JSON and preserve CORS headers without leaking secrets."""
     logger.exception("Unhandled server exception on %s %s: %s", request.method, request.url.path, exc)
+    origin = request.headers.get("origin")
+    headers: dict[str, str] = {}
+    if _is_allowed_origin(origin):
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+        headers["Access-Control-Allow-Methods"] = "*"
+        headers["Access-Control-Allow-Headers"] = "*"
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal server error. Please try again later."},
+        headers=headers,
     )
 
 is_wildcard = "*" in settings.cors_origins

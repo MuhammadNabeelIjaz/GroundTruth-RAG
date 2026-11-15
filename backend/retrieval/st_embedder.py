@@ -30,6 +30,7 @@ class _OnnxMiniLMAdapter:
     """
 
     def __init__(self, model_name: str) -> None:
+        import os
         from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
         from tokenizers import Tokenizer
 
@@ -37,6 +38,20 @@ class _OnnxMiniLMAdapter:
         self._fn = ONNXMiniLM_L6_V2()
         if hasattr(self._fn, "_download_model_if_not_exists"):
             self._fn._download_model_if_not_exists()
+        try:
+            so = self._fn.ort.SessionOptions()
+            so.intra_op_num_threads = 1
+            so.inter_op_num_threads = 1
+            so.log_severity_level = 3
+            model_path = os.path.join(self._fn.DOWNLOAD_PATH, self._fn.EXTRACTED_FOLDER_NAME, "model.onnx")
+            if os.path.isfile(model_path):
+                self._fn.__dict__["model"] = self._fn.ort.InferenceSession(
+                    model_path,
+                    providers=["CPUExecutionProvider"],
+                    sess_options=so,
+                )
+        except Exception as e:
+            logger.warning("Could not optimize ONNX SessionOptions: %s", e)
         self.max_seq_length = 256
         self._count_tokenizer = Tokenizer.from_str(self._fn.tokenizer.to_str())
         self._count_tokenizer.no_padding()

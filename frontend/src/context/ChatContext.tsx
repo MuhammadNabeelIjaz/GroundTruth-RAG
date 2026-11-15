@@ -313,7 +313,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshData = useCallback(async () => {
     try {
-      await api.checkHealth();
+      await api.checkHealthWithRetry(3, 2000);
       setIsBackendConnected(true);
 
       const [docsRes, convsRes] = await Promise.all([
@@ -475,10 +475,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     init();
 
+    let consecutiveHealthFailures = 0;
     const interval = setInterval(() => {
       api.checkHealth()
-        .then(() => setIsBackendConnected(true))
-        .catch(() => setIsBackendConnected(false));
+        .then(() => {
+          consecutiveHealthFailures = 0;
+          setIsBackendConnected(true);
+        })
+        .catch(() => {
+          consecutiveHealthFailures++;
+          if (consecutiveHealthFailures >= 2) {
+            setIsBackendConnected(false);
+          }
+        });
     }, 15000);
 
     return () => {

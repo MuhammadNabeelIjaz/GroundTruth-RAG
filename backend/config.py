@@ -48,13 +48,14 @@ class Settings(BaseSettings):
     # Configurable via environment variable:
     # e.g. CORS_ORIGINS="https://my-app.netlify.app,http://localhost:5173" or CORS_ORIGINS="*"
     cors_origins: list[str] = [
+        "https://groundtruth-rag.netlify.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
     # Optional regex pattern for origin matching (e.g. "^https?://.*\.example\.com$")
-    cors_origin_regex: str | None = None
+    cors_origin_regex: str | None = r"^https:\/\/.*\.netlify\.app$"
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -68,10 +69,12 @@ class Settings(BaseSettings):
                 try:
                     parsed = json.loads(v)
                     if isinstance(parsed, list):
-                        return [str(x).strip() for x in parsed if str(x).strip()]
+                        return [str(x).strip().rstrip("/") for x in parsed if str(x).strip()]
                 except Exception:
                     pass
-            return [x.strip() for x in v.split(",") if x.strip()]
+            return [x.strip().rstrip("/") for x in v.split(",") if x.strip()]
+        if isinstance(v, list):
+            return [str(x).strip().rstrip("/") for x in v if str(x).strip()]
         return v
 
     # DEBUG, INFO, WARNING, ERROR or CRITICAL (case-insensitive).
@@ -94,7 +97,7 @@ class Settings(BaseSettings):
 
     # Embeddings and vector store (Stage 3).
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    embedding_batch_size: int = Field(default=32, ge=1, le=1024)
+    embedding_batch_size: int = Field(default=16, ge=1, le=1024)
     chroma_collection_name: str = "document_chunks"
 
     # Retrieval (Stage 4).
