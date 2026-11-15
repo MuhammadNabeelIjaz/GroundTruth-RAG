@@ -8,9 +8,11 @@ import shutil
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
+import threading
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from backend.api.chat import router as chat_router
 from backend.api.conversations import router as conversations_router
@@ -25,9 +27,14 @@ from backend.schemas import HealthResponse
 configure_logging(settings.log_level)
 logger = logging.getLogger(__name__)
 
+_SEED_LOCK = threading.Lock()
+
 
 def _seed_sample_documents() -> None:
     """Ensure all sample PDFs in sample_pdfs are indexed directly without copying to uploads."""
+    if not _SEED_LOCK.acquire(blocking=False):
+        logger.info("Sample document seeding is already in progress; skipping duplicate run.")
+        return
     try:
         sample_dir = Path(settings.sample_dir)
         if not sample_dir.is_dir():
@@ -47,6 +54,8 @@ def _seed_sample_documents() -> None:
                     logger.warning("Could not auto-ingest %s: %s", pdf.name, e)
     except Exception as exc:
         logger.warning("Sample document seeding failed: %s", exc)
+    finally:
+        _SEED_LOCK.release()
 
 
 @asynccontextmanager
@@ -58,7 +67,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         settings.app_version,
         settings.log_level.upper(),
     )
-    _seed_sample_documents()
+    # Seed sample PDFs in a background thread so the server binds to $PORT immediately
+    seeder_thread = threading.Thread(
+        target=_seed_sample_documents, daemon=True, name="seed_sample_docs"
+    )
+    seeder_thread.start()
     yield
     logger.info("Shutting down %s", settings.app_name)
 
@@ -68,6 +81,16 @@ app = FastAPI(
     version=settings.app_version,
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Ensure unhandled 500 errors return clean JSON and preserve CORS headers without leaking secrets."""
+    logger.exception("Unhandled server exception on %s %s: %s", request.method, request.url.path, exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error. Please try again later."},
+    )
 
 is_wildcard = "*" in settings.cors_origins
 

@@ -35,6 +35,8 @@ class _OnnxMiniLMAdapter:
 
         self.model_name = model_name
         self._fn = ONNXMiniLM_L6_V2()
+        if hasattr(self._fn, "_download_model_if_not_exists"):
+            self._fn._download_model_if_not_exists()
         self.max_seq_length = 256
         self._count_tokenizer = Tokenizer.from_str(self._fn.tokenizer.to_str())
         self._count_tokenizer.no_padding()

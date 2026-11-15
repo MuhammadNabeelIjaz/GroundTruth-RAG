@@ -30,6 +30,7 @@ python-multipart>=0.0.33
 chromadb>=1.5.9,<2.0
 onnxruntime>=1.18.0,<2.0
 tokenizers>=0.19.0,<1.0
+tqdm>=4.65.0
 # Optional: sentence-transformers is only needed if running full PyTorch GPU inference.
 # By default, the application runs local CPU inference using ChromaDB's ONNX runtime MiniLM adapter.
 # sentence-transformers>=6.3.0,<7.0
