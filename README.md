@@ -410,7 +410,15 @@ The following capabilities are planned for upcoming development iterations:
 
 ---
 
-## 16. Testing & Verification Status
+## 17. Production Deployment (Netlify + Render)
+
+The project is pre-configured for frictionless cloud deployment:
+- **Frontend**: Deploy on [Netlify](https://www.netlify.com) using [`netlify.toml`](netlify.toml) and SPA redirects.
+- **Backend**: Deploy on [Render](https://render.com) using the [`render.yaml`](render.yaml) blueprint specification or manual Web Service.
+- **Flexibility**: Both build-time environment variable (`VITE_API_BASE_URL`) and in-app runtime switching (**Settings -> About -> Backend Connection URL**) are supported. Automatic regex CORS allows all Netlify preview and production URLs out-of-the-box.
+
+For complete, step-by-step instructions, see the **[Full Deployment Guide](docs/DEPLOYMENT.md)**.
+
 
 The project includes an extensive automated test suite enforcing isolation: tests generate synthetic PDFs in-memory and write temporary files strictly to pytest sandbox directories, leaving production data directories untouched.
 

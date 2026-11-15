@@ -12,11 +12,14 @@ import {
   Palette,
   Sun,
   Moon,
+  Globe,
+  RefreshCw,
 } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
 import { useTheme } from '../context/ThemeContext';
 import { Modal } from './Modal';
 import { BrandLogoIcon } from './BrandLogoIcon';
+import { getApiBaseUrl, setApiBaseUrl } from '../services/api';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -38,9 +41,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setMinSimilarity,
     clearAllConversations,
     setCurrentPage,
+    refreshData,
   } = useChat();
 
   const { theme, setTheme } = useTheme();
+
+  const [apiUrlInput, setApiUrlInput] = useState(() => getApiBaseUrl());
+  const [isTestingUrl, setIsTestingUrl] = useState(false);
+  const [apiUrlSavedMessage, setApiUrlSavedMessage] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabKey>(() => {
     try {
@@ -69,6 +77,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     await clearAllConversations();
     setIsClearing(false);
     setIsConfirmingClear(false);
+  };
+
+  const handleSaveApiUrl = async () => {
+    setIsTestingUrl(true);
+    setApiUrlSavedMessage(null);
+    const updated = setApiBaseUrl(apiUrlInput);
+    setApiUrlInput(updated);
+    try {
+      await refreshData();
+      setApiUrlSavedMessage('Connected successfully!');
+    } catch {
+      setApiUrlSavedMessage('Saved, but backend is unreachable.');
+    } finally {
+      setIsTestingUrl(false);
+    }
+  };
+
+  const handleResetApiUrl = async () => {
+    setIsTestingUrl(true);
+    setApiUrlSavedMessage(null);
+    const updated = setApiBaseUrl(null);
+    setApiUrlInput(updated);
+    try {
+      await refreshData();
+      setApiUrlSavedMessage('Reset to default & connected!');
+    } catch {
+      setApiUrlSavedMessage('Reset to default.');
+    } finally {
+      setIsTestingUrl(false);
+    }
   };
 
   const navItems = [
@@ -544,7 +582,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       </span>
                       <span className="flex items-center gap-1.5 font-medium dark:text-[#F3F4F6] text-[#2C2D30]">
                         <span className={`w-1.5 h-1.5 rounded-full ${isBackendConnected ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`} />
-                        {isBackendConnected ? 'Connected (Port 8000)' : 'Offline'}
+                        {isBackendConnected ? 'Connected' : 'Offline'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="dark:text-[#A1A1AA] text-[#6B7280] flex items-center gap-2">
+                        <Globe className="w-3.5 h-3.5 text-[#3B82F6]" />
+                        Active API URL
+                      </span>
+                      <span className="dark:text-[#F3F4F6] text-[#2C2D30] font-mono text-xs max-w-[200px] truncate" title={apiUrlInput || '(Relative / Proxy)'}>
+                        {apiUrlInput || '(Relative / Proxy)'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -555,6 +602,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <span className="dark:text-[#F3F4F6] text-[#2C2D30] font-mono">
                         {documents.length} docs · {conversations.length} chats
                       </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Backend Endpoint Flexibility Configuration */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider dark:text-[#8E9097] text-[#6B7280] block">
+                    Backend Connection URL
+                  </label>
+                  <div className="p-3.5 rounded-xl dark:bg-[#1E2024] bg-[#FAF9F5] border dark:border-[#2D3036] border-[#EBEAE5] space-y-3 text-[13px] shadow-xs">
+                    <p className="text-xs dark:text-[#A1A1AA] text-[#6B7280] leading-relaxed">
+                      Connect to your Render backend (e.g. <span className="font-mono text-emerald-600 dark:text-emerald-400">https://your-service.onrender.com</span>) or local development server.
+                    </p>
+                    <div className="space-y-2">
+                      <input
+                        type="url"
+                        value={apiUrlInput}
+                        onChange={(e) => setApiUrlInput(e.target.value)}
+                        placeholder="https://your-service.onrender.com or http://127.0.0.1:8000"
+                        className="w-full px-3 py-2 text-xs font-mono rounded-lg border dark:border-[#33363D] border-[#D1D5DB] dark:bg-[#18191C] bg-white dark:text-[#F3F4F6] text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleSaveApiUrl}
+                          disabled={isTestingUrl}
+                          className="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${isTestingUrl ? 'animate-spin' : ''}`} />
+                          <span>{isTestingUrl ? 'Connecting…' : 'Save & Connect'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleResetApiUrl}
+                          disabled={isTestingUrl}
+                          className="px-3 py-1.5 rounded-md dark:bg-[#25272C] bg-white border dark:border-[#33363D] border-[#E5E4DE] text-xs font-medium dark:text-[#F3F4F6] text-[#2C2D30] hover:bg-gray-100 dark:hover:bg-[#2D3036] transition cursor-pointer disabled:opacity-50"
+                        >
+                          Reset Default
+                        </button>
+                      </div>
+                      {apiUrlSavedMessage && (
+                        <p className={`text-xs ${apiUrlSavedMessage.includes('unreachable') ? 'text-amber-500' : 'text-emerald-500'} pt-1`}>
+                          {apiUrlSavedMessage}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

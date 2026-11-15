@@ -10,12 +10,54 @@ import type {
   ConversationMessageResponse,
 } from '../types';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+export function getDefaultApiBaseUrl(): string {
+  return (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+}
+
+export function getApiBaseUrl(): string {
+  try {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('rag_api_base_url');
+      if (stored && stored.trim()) {
+        return stored.trim().replace(/\/$/, '');
+      }
+    }
+  } catch {
+    // localStorage might be unavailable in some iframe/restricted modes
+  }
+  return getDefaultApiBaseUrl();
+}
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   timeout: 60000,
 });
+
+apiClient.interceptors.request.use((config) => {
+  const currentBase = getApiBaseUrl();
+  if (currentBase) {
+    config.baseURL = currentBase;
+  }
+  return config;
+});
+
+export function setApiBaseUrl(url: string | null): string {
+  const normalized = url && url.trim() ? url.trim().replace(/\/$/, '') : '';
+  try {
+    if (typeof window !== 'undefined') {
+      if (normalized) {
+        localStorage.setItem('rag_api_base_url', normalized);
+      } else {
+        localStorage.removeItem('rag_api_base_url');
+      }
+    }
+  } catch {
+    // ignore storage exceptions
+  }
+  const effectiveUrl = normalized || getDefaultApiBaseUrl();
+  apiClient.defaults.baseURL = effectiveUrl;
+  return effectiveUrl;
+}
 
 export function extractErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {

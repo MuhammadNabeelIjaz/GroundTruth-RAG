@@ -11,6 +11,7 @@ backend/.venv/
 node_modules/
 frontend/node_modules/
 frontend/dist/
+backend_deploy/
 *.zip
 
 # Python

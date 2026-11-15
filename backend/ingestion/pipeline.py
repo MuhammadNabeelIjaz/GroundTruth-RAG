@@ -132,14 +132,32 @@ def ingest_pages(
     return prepared
 
 
-def rebuild_index(uploads_dir: Path | None = None, *, token_aware: bool | None = None) -> RebuildReport:
-    """Throw the index away and rebuild it from the PDFs on disk (also removes orphans)."""
+def rebuild_index(
+    uploads_dir: Path | None = None,
+    sample_dir: Path | None = None,
+    *,
+    token_aware: bool | None = None,
+) -> RebuildReport:
+    """Throw the index away and rebuild it from both sample PDFs and user uploads."""
     uploads_dir = Path(uploads_dir or settings.uploads_dir)
+    sample_dir_to_use = Path(sample_dir or getattr(settings, "sample_dir", uploads_dir.parent / "sample_pdfs"))
     store = services.get_store()
     store.clear()
     report = RebuildReport()
-    pdfs = sorted(p for p in uploads_dir.iterdir() if p.is_file() and p.suffix.lower() == ".pdf") if uploads_dir.is_dir() else []
-    for path in pdfs:
+
+    pdf_paths: list[Path] = []
+    if sample_dir_to_use.is_dir():
+        pdf_paths.extend(p for p in sample_dir_to_use.rglob("*.pdf") if p.is_file())
+    if uploads_dir.is_dir():
+        pdf_paths.extend(
+            p for p in uploads_dir.iterdir()
+            if p.is_file() and p.suffix.lower() == ".pdf" and not p.name.startswith(".upload-")
+        )
+
+    # De-duplicate by file name (user upload overrides sample if same name)
+    unique_pdfs: dict[str, Path] = {p.name: p for p in pdf_paths}
+
+    for name, path in sorted(unique_pdfs.items(), key=lambda kv: kv[0].lower()):
         try:
             prepared = prepare_document(path.name, extract_pages(path, path.name), token_aware=token_aware)
             store_document(prepared, store)

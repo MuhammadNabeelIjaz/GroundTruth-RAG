@@ -269,32 +269,56 @@ def _remove_chunks_quietly(file_name: str) -> None:
 
 
 def _stored_pdfs(uploads_dir: Path) -> list[Path]:
-    """Finished PDFs only: temp `.upload-*.part` files and other files are ignored."""
+    """Finished user uploads only: temp `.upload-*.part` files and other files are ignored."""
     if not uploads_dir.is_dir():
         return []
     return sorted(
-        (e for e in uploads_dir.iterdir() if e.is_file() and e.suffix.lower() == ".pdf"),
+        (e for e in uploads_dir.iterdir() if e.is_file() and e.suffix.lower() == ".pdf" and not e.name.startswith(_TEMP_PREFIX)),
+        key=lambda e: e.name.lower(),
+    )
+
+
+def _sample_pdfs(sample_dir: Path) -> list[Path]:
+    """Protected sample PDFs located under sample_dir, including subdirectories."""
+    if not sample_dir.is_dir():
+        return []
+    return sorted(
+        (e for e in sample_dir.rglob("*.pdf") if e.is_file()),
         key=lambda e: e.name.lower(),
     )
 
 
 @router.get("", response_model=DocumentList)
 def list_documents() -> DocumentList:
-    """Uploaded PDFs with their indexing status, plus indexed names with no PDF."""
-    pdfs = _stored_pdfs(Path(settings.uploads_dir))
+    """All documents (user uploads + sample PDFs) with their indexing status, plus orphans."""
+    uploads_dir = Path(settings.uploads_dir)
+    sample_dir = Path(getattr(settings, "sample_dir", uploads_dir.parent / "sample_pdfs"))
+
+    user_pdfs = _stored_pdfs(uploads_dir)
+    sample_pdfs = _sample_pdfs(sample_dir)
+
     counts = vector_store.read_file_chunk_counts(
         Path(settings.chroma_dir), settings.chroma_collection_name
     )
-    on_disk = {p.name for p in pdfs}
+
+    all_docs: dict[str, Path] = {}
+    # Sample PDFs registered first
+    for p in sample_pdfs:
+        all_docs[p.name] = p
+    # User uploads take precedence if identical name
+    for p in user_pdfs:
+        all_docs[p.name] = p
+
+    on_disk = set(all_docs.keys())
     return DocumentList(
         documents=[
             DocumentInfo(
-                file_name=p.name,
-                size_bytes=p.stat().st_size,
-                indexed=counts.get(p.name, 0) > 0,
-                chunk_count=counts.get(p.name, 0),
+                file_name=name,
+                size_bytes=path.stat().st_size,
+                indexed=counts.get(name, 0) > 0,
+                chunk_count=counts.get(name, 0),
             )
-            for p in pdfs
+            for name, path in sorted(all_docs.items(), key=lambda kv: kv[0].lower())
         ],
         orphan_files=sorted(set(counts) - on_disk),
     )
@@ -302,14 +326,21 @@ def list_documents() -> DocumentList:
 
 @router.delete("/{file_name}", response_model=DeleteResponse)
 def delete_document(file_name: str) -> DeleteResponse:
-    """Delete a PDF and its chunks. Chunks go FIRST: if removing the file then
-    fails, the PDF merely shows as 'not indexed' (fixable by a rebuild), whereas
-    the reverse order could leave chunks that cite a file that no longer exists."""
+    """Delete a user-uploaded PDF and its chunks. Sample PDFs are protected and cannot be deleted."""
     wanted = sanitize_filename(file_name).lower()
+    uploads_dir = Path(settings.uploads_dir)
+    sample_dir = Path(getattr(settings, "sample_dir", uploads_dir.parent / "sample_pdfs"))
+
     with _STORE_LOCK:
-        # The stored name comes from the disk listing; the user's string never
-        # becomes part of a path.
-        match = next((p for p in _stored_pdfs(Path(settings.uploads_dir)) if p.name.lower() == wanted), None)
+        # Check if the requested file is a protected sample PDF
+        sample_match = next((p for p in _sample_pdfs(sample_dir) if p.name.lower() == wanted), None)
+        if sample_match is not None:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Document {sample_match.name!r} is a protected sample document and cannot be deleted."
+            )
+
+        match = next((p for p in _stored_pdfs(uploads_dir) if p.name.lower() == wanted), None)
         if not wanted or match is None:
             raise HTTPException(status_code=404, detail=f"No document named {file_name!r}.")
         removed = vector_store.delete_file_chunks(
@@ -321,12 +352,17 @@ def delete_document(file_name: str) -> DeleteResponse:
     return DeleteResponse(file_name=match.name, chunks_removed=removed)
 
 
-def _name_exists(uploads_dir: Path, name: str) -> bool:
-    """Case-insensitive, because Windows and macOS treat A.pdf and a.pdf as one file."""
-    if not uploads_dir.is_dir():
+def _name_exists(uploads_dir: Path, name: str, sample_dir: Path | None = None) -> bool:
+    """Case-insensitive, checks if name exists in user uploads or sample PDFs."""
+    if not name:
         return False
     wanted = name.lower()
-    return any(entry.name.lower() == wanted for entry in uploads_dir.iterdir())
+    if uploads_dir.is_dir() and any(entry.name.lower() == wanted for entry in uploads_dir.iterdir()):
+        return True
+    sample_dir_to_check = sample_dir or Path(getattr(settings, "sample_dir", uploads_dir.parent / "sample_pdfs"))
+    if sample_dir_to_check.is_dir():
+        return any(entry.name.lower() == wanted for entry in sample_dir_to_check.rglob("*.pdf") if entry.is_file())
+    return False
 
 
 def _copy_with_limit(upload: UploadFile, destination, max_bytes: int) -> None:
@@ -371,7 +407,7 @@ def get_document_suggestions(file_name: str) -> dict[str, Any]:
         return {"file_name": clean_name, "suggestions": _SUGGESTIONS_CACHE[clean_name]}
 
     uploads_dir = Path(settings.uploads_dir)
-    sample_dir = uploads_dir.parent / "sample_pdfs"
+    sample_dir = Path(getattr(settings, "sample_dir", uploads_dir.parent / "sample_pdfs"))
 
     match = None
     if uploads_dir.is_dir():
@@ -380,8 +416,8 @@ def get_document_suggestions(file_name: str) -> dict[str, Any]:
                 match = entry
                 break
     if match is None and sample_dir.is_dir():
-        for entry in sample_dir.iterdir():
-            if entry.name.lower() == clean_name.lower():
+        for entry in sample_dir.rglob("*.pdf"):
+            if entry.is_file() and entry.name.lower() == clean_name.lower():
                 match = entry
                 break
 

@@ -25,10 +25,12 @@ from tests.mocks.fake_embedder import FakeEmbedder
 
 @pytest.fixture(autouse=True)
 def isolated_uploads_dir(tmp_path, monkeypatch):
-    """Point the app at a temporary uploads folder for every test, so no test
-    can touch the real data/uploads directory."""
+    """Point the app at temporary uploads and sample folders for every test, so no test
+    can touch the real data directories."""
     uploads = tmp_path / "uploads"
+    samples = tmp_path / "sample_pdfs"
     monkeypatch.setattr(settings, "uploads_dir", uploads)
+    monkeypatch.setattr(settings, "sample_dir", samples)
     return uploads
 
 

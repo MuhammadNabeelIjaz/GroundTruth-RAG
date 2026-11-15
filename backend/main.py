@@ -27,11 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 def _seed_sample_documents() -> None:
-    """Ensure all sample PDFs from both Low and Medium datasets exist and are indexed."""
+    """Ensure all sample PDFs in sample_pdfs are indexed directly without copying to uploads."""
     try:
-        uploads_dir = Path(settings.uploads_dir)
-        uploads_dir.mkdir(parents=True, exist_ok=True)
-        sample_dir = uploads_dir.parent / "sample_pdfs"
+        sample_dir = Path(settings.sample_dir)
         if not sample_dir.is_dir():
             return
 
@@ -39,21 +37,14 @@ def _seed_sample_documents() -> None:
             Path(settings.chroma_dir), settings.chroma_collection_name
         )
 
-        for sub in ("Low", "Medium"):
-            sub_dir = sample_dir / sub
-            if sub_dir.is_dir():
-                for pdf in sub_dir.glob("*.pdf"):
-                    dest = uploads_dir / pdf.name
-                    if not dest.exists():
-                        shutil.copy2(pdf, dest)
-                        logger.info("Seeded sample document %s to uploads", pdf.name)
-                    if counts.get(dest.name, 0) == 0:
-                        try:
-                            pages = pdf_loader.extract_pages(dest, dest.name)
-                            pipeline.ingest_pages(dest.name, pages)
-                            logger.info("Ingested sample document %s", dest.name)
-                        except Exception as e:
-                            logger.warning("Could not auto-ingest %s: %s", dest.name, e)
+        for pdf in sorted(sample_dir.rglob("*.pdf"), key=lambda p: p.name.lower()):
+            if pdf.is_file() and counts.get(pdf.name, 0) == 0:
+                try:
+                    pages = pdf_loader.extract_pages(pdf, pdf.name)
+                    pipeline.ingest_pages(pdf.name, pages)
+                    logger.info("Ingested sample document %s directly from %s", pdf.name, pdf.parent.name)
+                except Exception as e:
+                    logger.warning("Could not auto-ingest %s: %s", pdf.name, e)
     except Exception as exc:
         logger.warning("Sample document seeding failed: %s", exc)
 
@@ -78,10 +69,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+is_wildcard = "*" in settings.cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
+    allow_origins=["*"] if is_wildcard else settings.cors_origins,
+    allow_origin_regex=settings.cors_origin_regex if not is_wildcard else None,
+    allow_credentials=False if is_wildcard else True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

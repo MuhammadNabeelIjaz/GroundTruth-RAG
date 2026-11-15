@@ -12,8 +12,9 @@ Environment variable names are the field names in upper case, e.g.
 """
 
 from pathlib import Path
+from typing import Any
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from backend.ingestion.chunker import (
@@ -44,10 +45,34 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
 
     # CORS allowed origins (frontend web client origins only).
+    # Configurable via environment variable:
+    # e.g. CORS_ORIGINS="https://my-app.netlify.app,http://localhost:5173" or CORS_ORIGINS="*"
     cors_origins: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ]
+    # Optional regex pattern for origin matching (e.g. "^https?://.*\.example\.com$")
+    cors_origin_regex: str | None = None
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _parse_cors_origins(cls, v: Any) -> list[str]:
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                return []
+            if v.startswith("[") and v.endswith("]"):
+                import json
+                try:
+                    parsed = json.loads(v)
+                    if isinstance(parsed, list):
+                        return [str(x).strip() for x in parsed if str(x).strip()]
+                except Exception:
+                    pass
+            return [x.strip() for x in v.split(",") if x.strip()]
+        return v
 
     # DEBUG, INFO, WARNING, ERROR or CRITICAL (case-insensitive).
     log_level: str = "INFO"
@@ -55,6 +80,7 @@ class Settings(BaseSettings):
     # Runtime data folders. Their contents are git-ignored. Folders are created
     # when first needed (Stage 1 / Stage 3), not at import time.
     uploads_dir: Path = DATA_DIR / "uploads"
+    sample_dir: Path = DATA_DIR / "sample_pdfs"
     chroma_dir: Path = DATA_DIR / "chroma"
 
     # Largest accepted PDF upload, in megabytes (must be at least 1).
