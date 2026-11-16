@@ -94,6 +94,7 @@ class SourceCitation(BaseModel):
     chunk_index: int
     similarity: float
     excerpt: str
+    passage_number: int | None = None
 
 
 class AnswerRequest(BaseModel):

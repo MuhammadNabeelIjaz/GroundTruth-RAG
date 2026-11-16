@@ -38,6 +38,7 @@ class ValidatedCitation:
     chunk_index: int
     similarity: float
     excerpt: str
+    passage_number: int | None = None
 
 
 def extract_cited_passage_indices(answer_text: str, total_chunks: int) -> set[int]:
@@ -156,28 +157,28 @@ def validate_citations(
         return []
 
     explicit_indices = extract_cited_passage_indices(answer_text, len(retrieved_chunks))
-    selected_chunks: list[RetrievedChunk] = []
+    selected_items: list[tuple[int, RetrievedChunk]] = []
 
     if explicit_indices:
         # User referenced specific passages
         for idx in sorted(explicit_indices):
             chunk = retrieved_chunks[idx - 1]
-            selected_chunks.append(chunk)
+            selected_items.append((idx, chunk))
     else:
         # Check lexical overlap for each chunk
-        for chunk in retrieved_chunks:
+        for i, chunk in enumerate(retrieved_chunks, 1):
             overlap = compute_lexical_overlap(answer_text, chunk.text)
             if overlap >= min_overlap_threshold:
-                selected_chunks.append(chunk)
+                selected_items.append((i, chunk))
 
         # Fallback if answer synthesized facts without direct keyword overlap but strong similarity
-        if not selected_chunks and retrieved_chunks and retrieved_chunks[0].similarity >= 0.4:
-            selected_chunks.append(retrieved_chunks[0])
+        if not selected_items and retrieved_chunks and retrieved_chunks[0].similarity >= 0.4:
+            selected_items.append((1, retrieved_chunks[0]))
 
     # Convert selected chunks to ValidatedCitation objects
     citations: list[ValidatedCitation] = []
 
-    for chunk in selected_chunks:
+    for passage_num, chunk in selected_items:
         excerpt = extract_best_excerpt(chunk.text, answer_text, max_chars=350)
         citations.append(
             ValidatedCitation(
@@ -187,6 +188,7 @@ def validate_citations(
                 chunk_index=chunk.chunk_index,
                 similarity=round(chunk.similarity, 6),
                 excerpt=excerpt,
+                passage_number=passage_num,
             )
         )
 

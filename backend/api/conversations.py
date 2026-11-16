@@ -106,6 +106,7 @@ def get_conversation_history(conversation_id: str) -> ConversationDetailResponse
                 chunk_index=s["chunk_index"],
                 similarity=s["similarity"],
                 excerpt=s["excerpt"],
+                passage_number=s.get("passage_number"),
             )
             for s in m.sources
         ]
@@ -192,6 +193,7 @@ def send_conversation_message(
             chunk_index=c.chunk_index,
             similarity=round(c.similarity, 6),
             excerpt=c.excerpt,
+            passage_number=getattr(c, "passage_number", None),
         )
         for c in result.citations
     ]

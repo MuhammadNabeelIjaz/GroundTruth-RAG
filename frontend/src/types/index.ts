@@ -54,6 +54,15 @@ export interface SourceCitation {
   chunk_index: number;
   similarity: number;
   excerpt: string;
+  passage_number?: number | null;
+}
+
+export interface ActivePdfCitation {
+  fileName: string;
+  pageNumber: number;
+  excerpt?: string;
+  similarity?: number;
+  chunkId?: string;
 }
 
 export interface MessageItem {

@@ -241,6 +241,7 @@ def answer_question(
                 "chunk_index": c.chunk_index,
                 "similarity": round(c.similarity, 6),
                 "excerpt": c.excerpt,
+                "passage_number": getattr(c, "passage_number", None),
             }
             for c in validated_citations
         ]
